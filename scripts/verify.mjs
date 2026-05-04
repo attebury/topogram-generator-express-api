@@ -38,6 +38,12 @@ run(topogramBin, ["generate"], { cwd: projectRoot });
 const outputRoot = path.join(projectRoot, "app", "apps", "services", "app_api");
 assert.equal(fs.existsSync(path.join(projectRoot, "app", ".topogram-generated.json")), true);
 assert.equal(fs.existsSync(path.join(outputRoot, "src/index.ts")), true, `Expected generated src/index.ts`);
+assert.equal(fs.existsSync(path.join(outputRoot, "src", "lib", "topogram", "server-contract.json")), true, `Expected generated server contract`);
+assert.equal(fs.existsSync(path.join(outputRoot, "src", "lib", "topogram", "api-contracts.json")), true, `Expected generated API contracts`);
+const indexTs = fs.readFileSync(path.join(outputRoot, "src/index.ts"), "utf8");
+assert.match(indexTs, /import express from "express"/);
+assert.match(indexTs, /body: req\.body/);
+assert.doesNotMatch(indexTs, /console\.log\(" listening/);
 console.log("Package-backed @attebury/topogram-generator-express-api smoke passed.");
 
 function run(command, args, options = {}) { const result = childProcess.spawnSync(command, args, { cwd: options.cwd || root, encoding: "utf8", env: { ...process.env, npm_config_cache: npmCache, PATH: process.env.PATH || "" } }); if (result.status !== 0) throw new Error([ `Command failed: ${command} ${args.join(" ")}`, result.stdout, result.stderr ].filter(Boolean).join("\n")); if (!options.quiet && result.stdout) process.stdout.write(result.stdout); if (!options.quiet && result.stderr) process.stderr.write(result.stderr); return result; }

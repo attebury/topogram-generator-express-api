@@ -20,17 +20,45 @@ function success(route) { return Number(route.success || route.successStatus || 
 function renderIndexTs(projection, component) {
   const routes = (projection.http || []).map((route) => {
     const method = String(route.method || "GET").toLowerCase();
-    return `app.${method}("${routePath(route.path)}", (req, res) => res.status(${success(route)}).json({ ok: true, capability: "${route.capabilityId}", input: { params: req.params, query: req.query } }));`;
+    return `app.${method}("${routePath(route.path)}", (req, res) => res.status(${success(route)}).json({
+  ok: true,
+  capability: "${route.capabilityId}",
+  input: {
+    params: req.params,
+    query: req.query,
+    body: req.body ?? null
+  }
+}));`;
   }).join("\n");
   const port = Number(component && component.port || 3000);
-  return `import express from "express";\n\nconst app = express();\napp.use(express.json());\n\napp.get("/health", (_req, res) => res.json({ ok: true, service: "${projection.id}" }));\napp.get("/ready", (_req, res) => res.json({ ok: true, ready: true, service: "${projection.id}" }));\n${routes}\n\nconst port = Number(process.env.PORT || ${port});\napp.listen(port, () => {\n  console.log(" listening on http://localhost:" + port);\n});\n`;
+  return `import express from "express";
+
+const app = express();
+app.use(express.json());
+
+app.get("/health", (_req, res) => res.json({ ok: true, service: "${projection.id}" }));
+app.get("/ready", (_req, res) => res.json({ ok: true, ready: true, service: "${projection.id}" }));
+${routes}
+
+const port = Number(process.env.PORT || ${port});
+app.listen(port, () => {
+  console.log("${projection.id} listening on http://localhost:" + port);
+});
+`;
 }
 
 function generate(context) {
   const projection = context.projection;
   if (!projection || !Array.isArray(projection.http)) throw new Error("@attebury/topogram-generator-express-api requires an API projection with http routes.");
   return {
-    files: { "package.json": renderPackageJson(), "tsconfig.json": renderTsconfig(), "src/index.ts": renderIndexTs(projection, context.component || {}) },
+    files: {
+      "package.json": renderPackageJson(),
+      "tsconfig.json": renderTsconfig(),
+      "src/index.ts": renderIndexTs(projection, context.component || {}),
+      "src/lib/topogram/server-contract.json": `${JSON.stringify(context.contracts?.server || { projection }, null, 2)}\n`,
+      "src/lib/topogram/api-contracts.json": `${JSON.stringify(context.contracts?.api || {}, null, 2)}\n`,
+      "README.md": `# ${context.component?.id || "Express API"}\n\nGenerated Express API service for projection \`${projection.id}\`.\n\nRun \`npm run check\` to type-check the generated service.\n`
+    },
     artifacts: { generator: manifest.id, projection: projection.id, routeCount: projection.http.length },
     diagnostics: []
   };
