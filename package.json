@@ -1,6 +1,6 @@
 {
-  "name": "@attebury/topogram-generator-express-api",
-  "version": "0.1.1",
+  "name": "@topogram/generator-express-api",
+  "version": "0.1.2",
   "description": "Package-backed Topogram generator for Express API services.",
   "license": "UNLICENSED",
   "private": false,
@@ -15,6 +15,7 @@
     "check": "node ./scripts/check-generator.mjs && node ./scripts/verify.mjs"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   }
 }

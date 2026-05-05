@@ -49,7 +49,7 @@ app.listen(port, () => {
 
 function generate(context) {
   const projection = context.projection;
-  if (!projection || !Array.isArray(projection.http)) throw new Error("@attebury/topogram-generator-express-api requires an API projection with http routes.");
+  if (!projection || !Array.isArray(projection.http)) throw new Error("@topogram/generator-express-api requires an API projection with http routes.");
   return {
     files: {
       "package.json": renderPackageJson(),
