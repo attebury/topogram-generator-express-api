@@ -1,6 +1,6 @@
 {
   "name": "@topogram/generator-express-api",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Package-backed Topogram generator for Express API services.",
   "license": "UNLICENSED",
   "private": false,
@@ -24,6 +24,6 @@
     "access": "public"
   },
   "devDependencies": {
-    "@topogram/cli": "^0.3.44"
+    "@topogram/cli": "^0.3.45"
   }
 }
