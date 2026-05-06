@@ -45,6 +45,9 @@ assert.equal(fs.existsSync(path.join(outputRoot, "src", "lib", "topogram", "api-
 const indexTs = fs.readFileSync(path.join(outputRoot, "src/index.ts"), "utf8");
 assert.match(indexTs, /import express from "express"/);
 assert.match(indexTs, /body: req\.body/);
+assert.match(indexTs, /capability: "cap_create_greeting"/);
+assert.match(indexTs, /capability: "cap_list_greetings"/);
+assert.doesNotMatch(indexTs, /capability: "undefined"/);
 assert.doesNotMatch(indexTs, /console\.log\(" listening/);
 console.log("Package-backed @topogram/generator-express-api smoke passed.");
 

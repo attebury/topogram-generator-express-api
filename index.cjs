@@ -16,13 +16,24 @@ function renderTsconfig() {
 
 function routePath(path) { return String(path || "/").replace(/:([A-Za-z0-9_]+)/g, ":$1"); }
 function success(route) { return Number(route.success || route.successStatus || 200); }
+function routeCapabilityId(route) {
+  const capabilityId = route.capabilityId || route.capability?.id || route.capability;
+  if (!capabilityId) throw new Error("Express API generator requires each route to carry a capability id. Use the normalized server contract routes.");
+  return capabilityId;
+}
+function routesForContext(context, projection) {
+  const contractRoutes = context.contracts?.server?.routes;
+  return Array.isArray(contractRoutes) && contractRoutes.length > 0
+    ? contractRoutes
+    : projection.http || [];
+}
 
-function renderIndexTs(projection, component) {
-  const routes = (projection.http || []).map((route) => {
+function renderIndexTs(projection, component, routes) {
+  const routeBlocks = routes.map((route) => {
     const method = String(route.method || "GET").toLowerCase();
     return `app.${method}("${routePath(route.path)}", (req, res) => res.status(${success(route)}).json({
   ok: true,
-  capability: "${route.capabilityId}",
+  capability: "${routeCapabilityId(route)}",
   input: {
     params: req.params,
     query: req.query,
@@ -38,7 +49,7 @@ app.use(express.json());
 
 app.get("/health", (_req, res) => res.json({ ok: true, service: "${projection.id}" }));
 app.get("/ready", (_req, res) => res.json({ ok: true, ready: true, service: "${projection.id}" }));
-${routes}
+${routeBlocks}
 
 const port = Number(process.env.PORT || ${port});
 app.listen(port, () => {
@@ -49,17 +60,18 @@ app.listen(port, () => {
 
 function generate(context) {
   const projection = context.projection;
-  if (!projection || !Array.isArray(projection.http)) throw new Error("@topogram/generator-express-api requires an API projection with http routes.");
+  const routes = projection ? routesForContext(context, projection) : [];
+  if (!projection || routes.length === 0) throw new Error("@topogram/generator-express-api requires an API projection with http routes.");
   return {
     files: {
       "package.json": renderPackageJson(),
       "tsconfig.json": renderTsconfig(),
-      "src/index.ts": renderIndexTs(projection, context.component || {}),
+      "src/index.ts": renderIndexTs(projection, context.component || {}, routes),
       "src/lib/topogram/server-contract.json": `${JSON.stringify(context.contracts?.server || { projection }, null, 2)}\n`,
       "src/lib/topogram/api-contracts.json": `${JSON.stringify(context.contracts?.api || {}, null, 2)}\n`,
       "README.md": `# ${context.component?.id || "Express API"}\n\nGenerated Express API service for projection \`${projection.id}\`.\n\nRun \`npm run check\` to type-check the generated service.\n`
     },
-    artifacts: { generator: manifest.id, projection: projection.id, routeCount: projection.http.length },
+    artifacts: { generator: manifest.id, projection: projection.id, routeCount: routes.length },
     diagnostics: []
   };
 }
