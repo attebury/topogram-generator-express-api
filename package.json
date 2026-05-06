@@ -7,7 +7,7 @@
   "type": "commonjs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/attebury/topogram-generator-express-api"
+    "url": "git+https://github.com/attebury/topogram-generator-express-api.git"
   },
   "main": "index.cjs",
   "files": [
