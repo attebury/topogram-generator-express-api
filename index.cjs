@@ -25,10 +25,10 @@ function routesForContext(context, projection) {
   const contractRoutes = context.contracts?.server?.routes;
   return Array.isArray(contractRoutes) && contractRoutes.length > 0
     ? contractRoutes
-    : projection.http || [];
+    : projection.endpoints || [];
 }
 
-function renderIndexTs(projection, component, routes) {
+function renderIndexTs(projection, widget, routes) {
   const routeBlocks = routes.map((route) => {
     const method = String(route.method || "GET").toLowerCase();
     return `app.${method}("${routePath(route.path)}", (req, res) => res.status(${success(route)}).json({
@@ -41,7 +41,7 @@ function renderIndexTs(projection, component, routes) {
   }
 }));`;
   }).join("\n");
-  const port = Number(component && component.port || 3000);
+  const port = Number(widget && widget.port || 3000);
   return `import express from "express";
 
 const app = express();
@@ -61,15 +61,15 @@ app.listen(port, () => {
 function generate(context) {
   const projection = context.projection;
   const routes = projection ? routesForContext(context, projection) : [];
-  if (!projection || routes.length === 0) throw new Error("@topogram/generator-express-api requires an API projection with http routes.");
+  if (!projection || routes.length === 0) throw new Error("@topogram/generator-express-api requires an API projection with endpoints.");
   return {
     files: {
       "package.json": renderPackageJson(),
       "tsconfig.json": renderTsconfig(),
-      "src/index.ts": renderIndexTs(projection, context.component || {}, routes),
+      "src/index.ts": renderIndexTs(projection, (context.runtime || context.component || {}), routes),
       "src/lib/topogram/server-contract.json": `${JSON.stringify(context.contracts?.server || { projection }, null, 2)}\n`,
       "src/lib/topogram/api-contracts.json": `${JSON.stringify(context.contracts?.api || {}, null, 2)}\n`,
-      "README.md": `# ${context.component?.id || "Express API"}\n\nGenerated Express API service for projection \`${projection.id}\`.\n\nRun \`npm run check\` to type-check the generated service.\n`
+      "README.md": `# ${(context.runtime || context.component)?.id || "Express API"}\n\nGenerated Express API service for projection \`${projection.id}\`.\n\nRun \`npm run check\` to type-check the generated service.\n`
     },
     artifacts: { generator: manifest.id, projection: projection.id, routeCount: routes.length },
     diagnostics: []

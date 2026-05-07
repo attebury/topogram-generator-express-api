@@ -6,7 +6,7 @@ Package-backed Topogram generator for Express API services.
 
 - Generator id: `@topogram/generator-express-api`
 - Surface: `api`
-- Projection platform: `api`
+- Projection type: `api`
 - Package manifest: `topogram-generator.json`
 - Adapter export: `index.cjs`
 

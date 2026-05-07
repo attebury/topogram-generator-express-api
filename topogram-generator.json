@@ -2,10 +2,6 @@
   "id": "@topogram/generator-express-api",
   "version": "1",
   "surface": "api",
-  "targetKind": "api",
-  "projectionPlatforms": [
-    "api"
-  ],
   "inputs": [
     "server-contract",
     "api-contracts"
@@ -24,5 +20,11 @@
     "persistence": false
   },
   "source": "package",
-  "package": "@topogram/generator-express-api"
+  "package": "@topogram/generator-express-api",
+  "runtimeKinds": [
+    "api_service"
+  ],
+  "projectionTypes": [
+    "api_contract"
+  ]
 }
