@@ -24,8 +24,8 @@ assertNoEnvFilesInTarball(generatorTarball, "@topogram/generator-express-api");
 
 const projectRoot = path.join(workRoot, "consumer");
 fs.mkdirSync(projectRoot, { recursive: true });
-fs.cpSync(path.join(root, "test-project-topogram"), path.join(projectRoot, "topogram"), { recursive: true });
-fs.copyFileSync(path.join(root, "test-project-topogram.project.json"), path.join(projectRoot, "topogram.project.json"));
+fs.cpSync(path.join(root, "test-project-topo"), path.join(projectRoot, "topo"), { recursive: true });
+fs.copyFileSync(path.join(root, "test-project-topo.project.json"), path.join(projectRoot, "topogram.project.json"));
 writeJson(path.join(projectRoot, "package.json"), { name: "topogram-generator-express-api-consumer", private: true, type: "module", devDependencies: { "@topogram/cli": cliDependencySpec, "@topogram/generator-express-api": `file:${generatorTarball}` } });
 console.log("Installing consumer dependencies...");
 run("npm", ["install"], { cwd: projectRoot, quiet: true });
